@@ -1,47 +1,86 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import Counter from './lib/Counter.svelte'
-  import TailwindCss from './tailwindcss.svelte';
+  import Gallery from "./lib/Gallery.svelte";
+  import Recorder from "./lib/Recorder.svelte";
+import { runFunction  } from "./lib/lib_db";
+  enum Views {
+    RECORD,
+    GALLERY,
+  }
+
+  let view = Views.RECORD;
 </script>
 
-<main>
-  <TailwindCss />
-  <div>
-    <a href="https://vitejs.dev" target="_blank"> 
-      <img src="/vite.svg" class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank"> 
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
+<div class="container">
+  <div class="header">
+    <h1 on:click={ runFunction }>
+      <span style="color: purple; font-weight: bold;">Time</span> Capsule
+    </h1>
   </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
+  <div class="content">
+    {#if view === Views.GALLERY}
+      <Gallery />
+    {:else}
+      <Recorder />
+    {/if}
   </div>
 
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
-</main>
+  <div class="footer">
+    <button
+      on:click={() => {
+        view = Views.RECORD;
+      }}
+    >
+      <img width="50" src="/{view === Views.RECORD ? 'mic_FILL' : 'mic'}.svg" />
+    </button>
+    <button
+      on:click={() => {
+        view = Views.GALLERY;
+      }}
+    >
+      <img
+        width="50"
+        src="/{view === Views.GALLERY ? 'folder_FILL' : 'folder'}.svg"
+      />
+    </button>
+  </div>
+</div>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
+  .container {
+    background-color: var(--color1);
+    margin: 0px !important;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+
+  h1 {
+    font-size: 2em;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
+
+  .content {
+    flex: 6;
   }
-  .read-the-docs {
-    color: #888;
+  .header {
+    background-color: var(--color2);
+    display: flex;
+    justify-content: center;
+    border-bottom: 2px solid black;
+    width: 100%;
+    height: 5em;
+    align-items: center;
+    flex: 1;
   }
+  .footer {
+    background-color: var(--color2);
+    flex: 1;
+    padding: 0;
+    display: flex;
+    height: 100px;
+    width: auto;
+    justify-content: center;
+    align-items: center;
+  }
+
 </style>

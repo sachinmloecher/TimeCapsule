@@ -1,3 +1,7 @@
+<script lang='ts'>
+    export let entry
+
+</script>
 <main>
   <hr />
   <div class="entry-cell-container">
@@ -6,14 +10,12 @@
 
       <div class="content">
         <div class="name-container">
-          <p class="name">Haskell • Sept 6, 2005</p>
+          <p class="name">{entry.name} • Sept 6, 2005</p>
         </div>
 
         <div class="transcription-container">
           <p class="transcription">
-            "Hey there my name is hask money. I come from the land down under.
-            There is nothing else to say except this is my last message. Goodbye
-            world."
+            {entry.transcription}
           </p>
         </div>
 
@@ -106,7 +108,7 @@
   }
 
   .play-svg {
-    color:white;
+    fill: white;
     width: 3em;
     height: 3em;
   }

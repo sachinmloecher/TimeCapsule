@@ -1,61 +1,58 @@
-<script lang='ts'>
+<script lang="ts">
   import { createMessage } from "./lib_db";
 
-
-	let paused = true;
+  let paused = true;
   let listening = false;
   let mediaRecorder: MediaRecorder | undefined = undefined;
-	let blob: Blob | undefined = undefined;
-	let fileName = '';
+  let blob: Blob | undefined = undefined;
+  let fileName = "";
 
   let chunks = [];
   let audioIN = { audio: true };
-	let audio: HTMLAudioElement | undefined;
-
+  let audio: HTMLAudioElement | undefined;
 
   function toggleListen() {
-		if(mediaRecorder === undefined) {
-			console.error('media recorder undefined')
-			return;
-		}
-		if(listening) {
-			mediaRecorder.stop()
-		} else {
-			chunks = []
-			mediaRecorder.start()
-		}
+    if (mediaRecorder === undefined) {
+      console.error("media recorder undefined");
+      return;
+    }
+    if (listening) {
+      mediaRecorder.stop();
+    } else {
+      chunks = [];
+      mediaRecorder.start();
+    }
     listening = !listening;
   }
 
-	function save() {
-		if (blob === undefined) {
-			console.error("blob undefined")
-			return;
-		}
+  function save() {
+    if (blob === undefined) {
+      console.error("blob undefined");
+      return;
+    }
 
-		if (fileName.length === 0) {
-			console.error('empty file name')
-			return
-		}
+    if (fileName.length === 0) {
+      console.error("empty file name");
+      return;
+    }
 
-		createMessage(blob, fileName);
-	}
+    createMessage(blob, fileName);
+  }
 
-
-	function togglePlay() {
-		if(paused) {
-			if(blob === undefined) {
-				console.error('blob undefined')
-				return
-			}
-			audio = new Audio(window.URL.createObjectURL(blob));
-    	audio.play();
-		} else {
-			audio.pause()
-		}
-		paused = !paused;
-
-	}
+  function togglePlay() {
+    if (paused) {
+      if (blob === undefined) {
+        console.error("blob undefined");
+        return;
+      }
+      audio = new Audio(window.URL.createObjectURL(blob));
+			audio.addEventListener('ended', () => {paused = true;})
+      audio.play();
+    } else {
+      audio.pause();
+    }
+    paused = !paused;
+  }
   //  audio is true, for recording
 
   // Access the permission for use
@@ -65,18 +62,16 @@
 
     // 'then()' method returns a Promise
     .then((stream) => {
-			mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder = new MediaRecorder(stream);
       mediaRecorder.ondataavailable = (e) => {
         chunks.push(e.data);
       };
 
       mediaRecorder.onstop = (e) => {
-
         blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
-				console.log(blob)
+        console.log(blob);
         chunks = [];
         const audioURL = window.URL.createObjectURL(blob);
-
       };
     })
 
@@ -88,31 +83,101 @@
 
 <main>
   <div class="record-content">
-    <div>
-      <p>RECORDING STUFF</p>
-    <input type="text" id="name" name="name" maxlength="16" bind:value={fileName} /> 
-    <button on:click={togglePlay}>
-      <img width=30 src='/{paused ? 'play' : 'pause'}.svg'/>
-    </button>
-      <button on:click={toggleListen}>
-        <img width=30 src="/record_{listening ? 'checked' : 'unchecked'}.svg" />
-      </button>
-      <button on:click={save}>
-        save
-      </button>
-  
+    <div class="recording">
+      <div>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          maxlength="16"
+          bind:value={fileName}
+        />
+      </div>
+
+      {#if blob !== undefined}
+        <div>
+          <button on:click={togglePlay} class="record-play">
+            {#if paused}
+						<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"><path d="M19.15 32.5 32.5 24l-13.35-8.5ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"/></svg>
+            {:else}
+						<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"><path d="M16.5 31.5h15v-15h-15ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 23.95q0-4.1 1.575-7.75 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24.05 4q4.1 0 7.75 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm.05-3q7.05 0 12-4.975T41 23.95q0-7.05-4.95-12T24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24.05 41ZM24 24Z"/></svg>
+            {/if}
+          </button>
+        </div>
+      {/if}
+
+      <div>
+        <button on:click={toggleListen} class="record-play">
+          {#if listening}
+            <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"
+              ><path
+                d="M24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"
+              /></svg
+            >
+          {:else}
+            <svg  xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"
+              ><path
+                d="M24 33.3q3.9 0 6.6-2.7 2.7-2.7 2.7-6.6 0-3.9-2.7-6.6-2.7-2.7-6.6-2.7-3.9 0-6.6 2.7-2.7 2.7-2.7 6.6 0 3.9 2.7 6.6 2.7 2.7 6.6 2.7ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"
+              /></svg
+            >
+          {/if}
+        </button>
+      </div>
+
+      <div>
+        <button on:click={save}> save </button>
+      </div>
+
+    </div>
+
+    <div class="hourglass-container">
+      <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48">
+        <path
+          d="M15.8 41h16.4v-6.35q0-3.5-2.375-6.025Q27.45 26.1 24 26.1t-5.825 2.525Q15.8 31.15 15.8 34.65ZM24 21.9q3.45 0 5.825-2.525T32.2 13.3V7H15.8v6.3q0 3.55 2.375 6.075Q20.55 21.9 24 21.9ZM8 44v-3h4.8v-6.35q0-3.5 1.825-6.425T19.7 24q-3.25-1.3-5.075-4.25Q12.8 16.8 12.8 13.3V7H8V4h32v3h-4.8v6.3q0 3.5-1.825 6.45T28.3 24q3.25 1.3 5.075 4.225Q35.2 31.15 35.2 34.65V41H40v3Z"
+        ></path>
+      </svg>
     </div>
   </div>
 </main>
 
 <style>
+  svg {
+    fill: white;
+    height: 100px;
+    width: 100px;
+  }
   .record-content {
-    background-color: red;
+    height: 60vh;
+    margin-top: 5em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.298);
     /* flex-grow:1; */
-    height: 10vh;
     width: auto;
   }
 
-  @media (max-width: 390) {
+  .record-play {
+    border: none;
   }
+
+  button {
+    margin-left: 10px;
+    margin-right: 10px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0);
+    border: 1px solid white;
+    color: white;
+  }
+
+  .recording {
+    height: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+  }
+
 </style>

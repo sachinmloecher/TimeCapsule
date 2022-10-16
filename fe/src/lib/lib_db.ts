@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getStorage, ref , uploadBytes} from "firebase/storage";
+import { getStorage, ref, uploadBytes, listAll } from "firebase/storage";
 import {
   getFirestore,
   collection,
@@ -9,8 +9,14 @@ import {
   where,
   query,
 } from "firebase/firestore";
+
+import type {DocumentData} from "firebase/firestore";
 import * as _ from "firebase/firestore";
 import { doc, setDoc, Timestamp } from "firebase/firestore";
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 // Required for side-effects
 // Follow this pattern to import other Firebase services
@@ -28,32 +34,59 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage()
+const storage = getStorage(app, "gs://sachacks4.appspot.com");
 
 export async function runFunction() {
-  transcribeAudioFile(null);
+  console.log('clicked title')
+  let docs = await getMessages()
+  docs.filter(f => true);
+  console.log('in runFunction')
+  search("transcript", docs);
 }
 export async function createMessage(blob: Blob, name: string) {
-  // console.log('hi')
-  await saveAudioFileToStorage(blob, name);
-  const transcript = await transcribeAudioFile(blob);
-  // const docRef = await addDoc(collection(db, "messages"), {
-  //     name,
-  //     transcript,
-  //     creation_date: Timestamp.fromDate(new Date())
-  // });
+  name = name.trim();
+  
+  //upload
+  const random_path = "audio/" + doc(collection(db, "temp")).id + ".ogg";
+  const encoded = encodeURIComponent(random_path)
+  await saveAudioFileToStorage(blob, random_path);
+  const storage_url = 'https://firebasestorage.googleapis.com/v0/b/sachacks4.appspot.com/o/' + encoded + '?alt=media';
+  const transcript = await transcribeAudioFile(storage_url);
+  console.log(transcript);
+
+  const docRef = await addDoc(collection(db, "messages"), {
+      name:name,
+      transcript:transcript,
+      url:storage_url,
+      creation_date: Timestamp.fromDate(new Date())
+  });
 }
 
+// Fetch all documents in messages collection
+export async function getMessages(): Promise<DocumentData[]> {
+    const querySnapshot = await getDocs(collection(db, "messages"));
+    let docs = querySnapshot.docs.map(e=>e.data());
+    return docs;
+}
+
+export async function search(term:string, docs:DocumentData[]) {
+    // Retreive all documents to search through
+    console.log(docs)
+    docs.filter(f => f.data.transcript.includes("").then(console.log("FILTERED 1 MESSAGE THROUGH")));
+  }
+
+
 //saves blob to firebase storage and returns id/link to object
-async function saveAudioFileToStorage(blob: Blob, name:string) {
-    const blobRef = ref(storage, '/audio/' + name)
-    uploadBytes(blobRef, blob).then((snapshot) => {
-        console.log('Uploaded a blob or file!');
-      });
+async function saveAudioFileToStorage(blob: Blob, name: string) {
+  const blobRef = ref(storage, name);
+  uploadBytes(blobRef, blob).then((snapshot) => {
+    console.log("SNAPSHOT:", snapshot);
+  });
 }
 
 //makes api call to transcribe audio and returns transcript string
-async function transcribeAudioFile(blob: Blob) {
+//input - url to audio file
+async function transcribeAudioFile(url: string):Promise<string> {
   try {
     const res = await fetch("https://api.assemblyai.com/v2/transcript", {
       headers: {
@@ -63,8 +96,7 @@ async function transcribeAudioFile(blob: Blob) {
       },
       method: "POST",
       body: JSON.stringify({
-        audio_url:
-          "https://firebasestorage.googleapis.com/v0/b/sachacks4.appspot.com/o/Benedict_cumberbatch_in_front_row_b00wqfnd.flac?alt=media&token=7a82abd8-a6d1-4ff8-bb38-8bb36a20a831",
+        audio_url: url
       }),
       mode: "cors",
     });
@@ -73,24 +105,37 @@ async function transcribeAudioFile(blob: Blob) {
 
     let transcript_id = json["id"];
 
-    console.log("WIAINTINGGING ")
-    setTimeout(async function(){
-        console.log("requesting ")
-        let res2 = await fetch(
-            "https://api.assemblyai.com/v2/transcript/" + transcript_id,
-            {
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                authorization: "257838bed8f84c9fb3f41453fc1564f6",
-              },
-            }
-          );
-          console.log(res2);
-          let res3 = await res2.json();
-          console.log(res3);
-    }, 15000);
-
+    console.log("starting transcript :)");
+    let done_transcribing = false;
+    //try fetching transcript every 2 secs for 40 secs
+    for (let i = 0; i < 20; i++) {
+      await delay(2000);
+      console.log("requesting for completion");
+      let res2 = await fetch(
+        "https://api.assemblyai.com/v2/transcript/" + transcript_id,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            authorization: "257838bed8f84c9fb3f41453fc1564f6",
+          },
+        }
+      );
+      let res3 = await res2.json();
+      console.log(res3);
+      if(res3.status == 'completed') {
+        done_transcribing = true;
+        return res3.text; //this is the transcripted text.
+      }
+      else if(res3.status != 'processing') {
+        done_transcribing = true;
+        return res3.text; //this is the transcripted text.
+      }; 
+    }
+    if(!done_transcribing) {
+      // TODO - handle error, transcribe 
+      console.error('transcribing timed out.')
+    }
   } catch (err) {
     console.error(err);
   }

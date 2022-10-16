@@ -37,7 +37,7 @@
         <Entry {entry} />
       {/each}
     {:else}
-      <div type="text">nothing found</div>
+      <div class="text" type="text"><p>Nothing found</p></div>
     {/if}
   </div>
 </div>
@@ -57,5 +57,15 @@
     background-color: rgba(255, 255, 255, 0.146);
     border-color: none;
     box-shadow: none;
+  }
+
+  p {
+    color: white;
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  .text {
+    display: flex;
+    justify-content: center;
   }
 </style>

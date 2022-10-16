@@ -37,7 +37,7 @@
     recognition.stop();
     {
       const grammar =
-        "#JSGF V1.0; grammar colors; public <color> = stop recording;";
+        "#JSGF V1.0; grammar colors; public <color> = stop recording ;";
       const speechreg = window.webkitSpeechRecognition;
       const rec2 = new speechreg();
       // const grammerlist = ;

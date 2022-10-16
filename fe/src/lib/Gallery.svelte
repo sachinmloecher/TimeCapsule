@@ -4,20 +4,20 @@
   import { getMessages } from "./lib_db";
 
   let searchValue = "";
-  let data: any[] = [];
-  async function load() {
-    const data = await getMessages();
-  }
+  let promiseData =  getMessages();
 </script>
 
 <main>
   <div class="gallery-content">
     <div class="gallery">
-      <form>
+      <div class='search-container'>
         <input type="text" id="search-bar" bind:value={searchValue} />
-      </form>
+        <button on:click={() => {
+            promiseData = search(searchValue, promiseData)
+        }}>Search 🔍</button>
+      </div>
 
-      {#await load then}
+      {#await promiseData then data}
         {#each data as entry, index}
           <Entry {entry} />
         {/each}
@@ -31,18 +31,16 @@
     display: flex;
     padding: 0;
     margin: 0;
-    display: flex;
     justify-content: center;
   }
 
-  form {
-    margin-top: 2em;
-    display: flex;
+  .search-container{
+    display:grid;
+    grid-template-columns: 3.7fr 1fr;
     justify-content: center;
   }
 
   #search-bar {
-    margin: 10px 0 10px;
     padding: 10px;
     border-radius: 12px;
     background-color: rgba(255, 255, 255, 0.146);
@@ -53,7 +51,6 @@
   .gallery {
     display: flex;
     justify-content: center;
-    width: 100%;
     display: flex;
     flex-direction: column;
   }

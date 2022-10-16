@@ -6,6 +6,7 @@ import {
   getDocs,
   addDoc,
   getDoc,
+  updateDoc,
   where,
   query,
 } from "firebase/firestore";
@@ -17,6 +18,24 @@ import { doc, setDoc, Timestamp } from "firebase/firestore";
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+let audio = new Audio()
+let prevReset: () => void = () => {};
+audio.addEventListener('ended', () => { prevReset() });
+export function playAudio(path:string, reset: () => void ) {
+    prevReset();
+    prevReset = reset;
+    audio.setAttribute('src', path)
+    audio.load()
+    audio.play()
+}
+
+export function stopAudio() {
+    audio.pause();
+    audio.currentTime = 0;
+    prevReset();
+}
+
 
 // Required for side-effects
 // Follow this pattern to import other Firebase services
@@ -69,10 +88,10 @@ export async function getMessages(): Promise<DocumentData[]> {
     return docs;
 }
 
-export async function search(term:string, docs:DocumentData[]) {
+export async function search(term:string, docs:DocumentData[]): Promise<DocumentData[]> {
     // Retreive all documents to search through
-    console.log(docs)
-    docs.filter(f => f.data.transcript.includes("").then(console.log("FILTERED 1 MESSAGE THROUGH")));
+    let result = docs.filter(f => f.transcript.includes(term));
+    return result;
   }
 
 

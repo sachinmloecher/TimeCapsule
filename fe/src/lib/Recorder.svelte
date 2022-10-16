@@ -50,6 +50,7 @@
       audio.play();
     } else {
       audio.pause();
+			audio.currentTime = 0;
     }
     paused = !paused;
   }
@@ -71,7 +72,6 @@
         blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
         console.log(blob);
         chunks = [];
-        const audioURL = window.URL.createObjectURL(blob);
       };
     })
 
@@ -83,8 +83,16 @@
 
 <main>
   <div class="record-content">
+    <div class="hourglass-container">
+      <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48" class="hourglass-svg">
+        <path
+          d="M15.8 41h16.4v-6.35q0-3.5-2.375-6.025Q27.45 26.1 24 26.1t-5.825 2.525Q15.8 31.15 15.8 34.65ZM24 21.9q3.45 0 5.825-2.525T32.2 13.3V7H15.8v6.3q0 3.55 2.375 6.075Q20.55 21.9 24 21.9ZM8 44v-3h4.8v-6.35q0-3.5 1.825-6.425T19.7 24q-3.25-1.3-5.075-4.25Q12.8 16.8 12.8 13.3V7H8V4h32v3h-4.8v6.3q0 3.5-1.825 6.45T28.3 24q3.25 1.3 5.075 4.225Q35.2 31.15 35.2 34.65V41H40v3Z"
+        ></path>
+      </svg>
+    </div>
     <div class="recording">
-      <div>
+      <div class="text-box">
+        <p>Name of voice</p>
         <input
           type="text"
           id="name"
@@ -123,38 +131,59 @@
           {/if}
         </button>
       </div>
-
-      <div>
-        <button on:click={save}> save </button>
-      </div>
-
     </div>
 
-    <div class="hourglass-container">
-      <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48">
-        <path
-          d="M15.8 41h16.4v-6.35q0-3.5-2.375-6.025Q27.45 26.1 24 26.1t-5.825 2.525Q15.8 31.15 15.8 34.65ZM24 21.9q3.45 0 5.825-2.525T32.2 13.3V7H15.8v6.3q0 3.55 2.375 6.075Q20.55 21.9 24 21.9ZM8 44v-3h4.8v-6.35q0-3.5 1.825-6.425T19.7 24q-3.25-1.3-5.075-4.25Q12.8 16.8 12.8 13.3V7H8V4h32v3h-4.8v6.3q0 3.5-1.825 6.45T28.3 24q3.25 1.3 5.075 4.225Q35.2 31.15 35.2 34.65V41H40v3Z"
-        ></path>
-      </svg>
+    <div>
+      <button on:click={save} class="save-btn"><span style="font-weight:bold;">
+        Save
+      </span>
+       </button>
     </div>
   </div>
 </main>
 
 <style>
+
+  p {
+    display: flex;
+    justify-content: center;
+    color: white;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: bold;
+  }
+
+  .save-btn:hover {
+    background-color: rgba(255, 255, 255, 0.487);
+    color: rgba(0, 0, 0, 0.534);
+  }
+  .hourglass-container{
+    display:grid;
+    place-content: center;
+  }
+  .hourglass-svg {
+    height: 350px;
+    width: 350px;
+    display: flex;
+    fill: rgba(255, 255, 255, 0.559);
+  }
+
   svg {
     fill: white;
     height: 100px;
     width: 100px;
   }
+  main {
+    height: 100%;
+    display:grid;
+
+    /* align-items: stretch; */
+  }
   .record-content {
-    height: 60vh;
-    margin-top: 5em;
-    display: flex;
+    display: grid;
     flex-direction: column;
-    justify-content: center;
+    justify-content: stretch;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.298);
-    /* flex-grow:1; */
     width: auto;
   }
 
@@ -162,22 +191,26 @@
     border: none;
   }
 
-  button {
-    margin-left: 10px;
-    margin-right: 10px;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0);
-    border: 1px solid white;
-    color: white;
+  button:hover {
+    transform: scale(1.12);
+    transition: transform 0.15s ease-out;
   }
 
   .recording {
+    margin-top: 4em;
     height: auto;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
+  }
+
+  input {
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
   }
 
 </style>

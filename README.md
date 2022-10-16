@@ -1,7 +1,6 @@
 # Time Capsule
 ![alt text](https://github.com/sachinmloecher/Sachacks-Project/blob/main/color%201.jpg?raw=true)
 
-
 A serverless web application which allows you to capture audio in any moment, transcribe it to text, and find it later by searching for keywords. Record messages that you and your loved ones can reminisce on later.
 
 Time Capsule records local audio, uploads it to Firestore, and then generates a transcript of the file using AssemblyAI speech recognition. Files can then be searched for using keywords. All using a serverless architecture.
@@ -14,7 +13,7 @@ The Explore Page displays all of the user's audio transcripts currently present.
 
 ***
 <p align="center">
-  <img src="https://github.com/sachinmloecher/Sachacks-Project/blob/main/lgog.jpg?raw=true" />
+  <img src="https://github.com/sachinmloecher/Sachacks-Project/blob/main/lgog.jpg?raw=true" width="200"/>
 </p>
 
 
@@ -28,6 +27,10 @@ Time Capsule gives you comfort in knowing that these conversations can be saved 
 
 #### How we built it
 We built Time Capsule using Svelte, Typescript, Firebase, Assembly AI, and Webspeech API. We decided to use a completely serverless architecture, and used Visual Studio Code Live Share to collaborate. Half of the team worked on the front end and half the team worked on backend functionality. Then we integrated the two in the UI and began testing.
+
+<p align="center">
+  <img src="https://github.com/sachinmloecher/Sachacks-Project/blob/main/Time Capsule.png?raw=true" width="500"/>
+</p>
 
 #### Challenges we ran into
 We ran into mostly authentication errors on the backend side of things, and had difficulty implementing our design ideas in the front end. It took a long time to get everything working as we envisioned it, and creating a simple, aesthetic UI was more difficult than we expected. Choosing free, functional APIs was also a hurdle we did not expect to run into.

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createMessage } from "./lib_db";
+  import { onMount } from "svelte";
 
   let paused = true;
   let listening = false;
@@ -11,7 +12,37 @@
   let audioIN = { audio: true };
   let audio: HTMLAudioElement | undefined;
 
+  let hourglass_svg;
+  let animationThing = null;
+  
+
   function toggleListen() {
+
+
+    if (!listening) {
+      console.log('is listening')
+      if(animationThing) {animationThing.play()}else{
+        const aliceTumbling = [
+        { transform: "rotate(0)", color: "#000" },
+        { color: "#431236"},
+        {
+          transform: "rotate(360deg)",
+          color: "#000",
+          fill: 'both'
+        },
+      ];
+      animationThing = (hourglass_svg as HTMLElement).animate(aliceTumbling, {
+        duration: 3000,
+        iterations: Infinity,
+      });
+      }
+
+    } else {
+      if(animationThing) animationThing.pause()
+    }
+
+
+
     if (mediaRecorder === undefined) {
       console.error("media recorder undefined");
       return;
@@ -46,11 +77,13 @@
         return;
       }
       audio = new Audio(window.URL.createObjectURL(blob));
-			audio.addEventListener('ended', () => {paused = true;})
+      audio.addEventListener("ended", () => {
+        paused = true;
+      });
       audio.play();
     } else {
       audio.pause();
-			audio.currentTime = 0;
+      audio.currentTime = 0;
     }
     paused = !paused;
   }
@@ -84,15 +117,22 @@
 <main>
   <div class="record-content">
     <div class="hourglass-container">
-      <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48" class="hourglass-svg">
+      <svg
+        bind:this={hourglass_svg}
+        xmlns="http://www.w3.org/2000/svg"
+        height="48"
+        width="48"
+        viewBox="0 0 48 48"
+        class="hourglass-svg"
+      >
         <path
           d="M15.8 41h16.4v-6.35q0-3.5-2.375-6.025Q27.45 26.1 24 26.1t-5.825 2.525Q15.8 31.15 15.8 34.65ZM24 21.9q3.45 0 5.825-2.525T32.2 13.3V7H15.8v6.3q0 3.55 2.375 6.075Q20.55 21.9 24 21.9ZM8 44v-3h4.8v-6.35q0-3.5 1.825-6.425T19.7 24q-3.25-1.3-5.075-4.25Q12.8 16.8 12.8 13.3V7H8V4h32v3h-4.8v6.3q0 3.5-1.825 6.45T28.3 24q3.25 1.3 5.075 4.225Q35.2 31.15 35.2 34.65V41H40v3Z"
-        ></path>
+        />
       </svg>
     </div>
     <div class="recording">
       <div class="text-box">
-        <p>Name of voice</p>
+        <p>Title of Recording</p>
         <input
           type="text"
           id="name"
@@ -101,49 +141,45 @@
           bind:value={fileName}
         />
       </div>
-
-      {#if blob !== undefined}
-        <div>
-          <button on:click={togglePlay} class="record-play">
-            {#if paused}
-						<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"><path d="M19.15 32.5 32.5 24l-13.35-8.5ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"/></svg>
-            {:else}
-						<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"><path d="M16.5 31.5h15v-15h-15ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 23.95q0-4.1 1.575-7.75 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24.05 4q4.1 0 7.75 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm.05-3q7.05 0 12-4.975T41 23.95q0-7.05-4.95-12T24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24.05 41ZM24 24Z"/></svg>
-            {/if}
-          </button>
-        </div>
-      {/if}
-
-      <div>
-        <button on:click={toggleListen} class="record-play">
-          {#if listening}
-            <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"
-              ><path
-                d="M24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"
-              /></svg
-            >
-          {:else}
-            <svg  xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"
-              ><path
-                d="M24 33.3q3.9 0 6.6-2.7 2.7-2.7 2.7-6.6 0-3.9-2.7-6.6-2.7-2.7-6.6-2.7-3.9 0-6.6 2.7-2.7 2.7-2.7 6.6 0 3.9 2.7 6.6 2.7 2.7 6.6 2.7ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"
-              /></svg
-            >
-          {/if}
-        </button>
-      </div>
     </div>
 
-    <div>
-      <button on:click={save} class="save-btn"><span style="font-weight:bold;">
-        Save
-      </span>
-       </button>
+    <div class="btns-container">
+      <button on:click={toggleListen}>
+        {#if listening}
+          Stop
+
+          <!-- <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"
+            ><path
+              d="M24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"
+            /></svg
+          > -->
+        {:else}
+          Record
+          <!-- <svg  xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"
+            ><path
+              d="M24 33.3q3.9 0 6.6-2.7 2.7-2.7 2.7-6.6 0-3.9-2.7-6.6-2.7-2.7-6.6-2.7-3.9 0-6.6 2.7-2.7 2.7-2.7 6.6 0 3.9 2.7 6.6 2.7 2.7 6.6 2.7ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"
+            /></svg
+          > -->
+        {/if}
+      </button>
+      <button on:click={save} class="save-btn"> Save </button>
+
+      {#if blob !== undefined}
+        <button on:click={togglePlay}>
+          {#if paused}
+            Playback
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"><path d="M19.15 32.5 32.5 24l-13.35-8.5ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24 41Zm0-17Z"/></svg> -->
+          {:else}
+            Pause
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"><path d="M16.5 31.5h15v-15h-15ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 23.95q0-4.1 1.575-7.75 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24.05 4q4.1 0 7.75 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm.05-3q7.05 0 12-4.975T41 23.95q0-7.05-4.95-12T24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24.05 41ZM24 24Z"/></svg> -->
+          {/if}
+        </button>
+      {/if}
     </div>
   </div>
 </main>
 
 <style>
-
   p {
     display: flex;
     justify-content: center;
@@ -152,19 +188,37 @@
     font-weight: bold;
   }
 
-  .save-btn:hover {
+  .btns-container {
+    display: grid;
+    /* flex-direction: grid; */
+    width: 27em;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+  }
+  button {
+    font-weight: bold;
+    padding: 10px 35px 10px 35px;
+  }
+  button:hover {
     background-color: rgba(255, 255, 255, 0.487);
     color: rgba(0, 0, 0, 0.534);
   }
-  .hourglass-container{
-    display:grid;
+  button:hover {
+    transform: scale(1.12);
+    transition: transform 0.01s ease-out;
+  }
+  .hourglass-container {
+    display: grid;
     place-content: center;
   }
+
   .hourglass-svg {
     height: 350px;
     width: 350px;
     display: flex;
     fill: rgba(255, 255, 255, 0.559);
+    transition-timing-function: ease-in-out;
+    transform-origin: center;
   }
 
   svg {
@@ -174,7 +228,7 @@
   }
   main {
     height: 100%;
-    display:grid;
+    display: grid;
 
     /* align-items: stretch; */
   }
@@ -183,21 +237,19 @@
     flex-direction: column;
     justify-content: stretch;
     align-items: center;
+    place-items: center;
+    grid-template-rows: 5fr 1fr 1fr;
     background-color: rgba(255, 255, 255, 0.298);
     width: auto;
   }
 
-  .record-play {
-    border: none;
-  }
-
-  button:hover {
-    transform: scale(1.12);
-    transition: transform 0.15s ease-out;
+  @keyframes rotateGlass {
+    50% {
+      transform: rotate(180deg);
+    }
   }
 
   .recording {
-    margin-top: 4em;
     height: auto;
     width: 100%;
     display: flex;
@@ -205,12 +257,4 @@
     align-items: center;
     flex-direction: row;
   }
-
-  input {
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-  }
-
 </style>

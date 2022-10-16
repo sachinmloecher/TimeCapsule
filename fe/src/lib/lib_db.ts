@@ -89,10 +89,10 @@ export async function getMessages(): Promise<DocumentData[]> {
 }
 
 export async function search(term:string, docs:DocumentData[]): Promise<DocumentData[]> {
+    term = term.toLowerCase();
     // Retreive all documents to search through
-    let result = docs.filter(f => f.transcript.includes(term));
-    return result;
-  }
+    return docs.filter(doc => doc.transcript.toLowerCase().includes(term) || doc.name.toLowerCase().includes(term));
+}
 
 
 //saves blob to firebase storage and returns id/link to object

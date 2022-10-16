@@ -13,6 +13,10 @@ The record page lets you record your audio using the device microphone, name it,
 The Explore Page displays all of the user's audio transcripts currently present. It has a scrollable library of the transcripts, recordings, titles, and dates, and a search bar to filter files based on entered keywords.
 
 ***
+<p align="center">
+  <img src="https://github.com/sachinmloecher/Sachacks-Project/blob/main/lgog.jpg?raw=true" />
+</p>
+
 
 #### Inspiration
 For many, mourning the loss of a loved one comes with the immense desire to preserve memories and mementos. Many will look to old letters, printed emails, and particularly to videos and recordings, which by their nature feel so alive and close to heart.

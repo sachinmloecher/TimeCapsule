@@ -1,7 +1,7 @@
 <script lang="ts">
   import Gallery from "./lib/Gallery.svelte";
   import Recorder from "./lib/Recorder.svelte";
-import { runFunction  } from "./lib/lib_db";
+  import { runFunction } from "./lib/lib_db";
   enum Views {
     RECORD,
     GALLERY,
@@ -12,8 +12,9 @@ import { runFunction  } from "./lib/lib_db";
 
 <div class="container">
   <div class="header">
-    <h1 on:click={ runFunction }>
-      <span style="color: purple; font-weight: bold;">Time</span> Capsule
+    <h1 on:click={runFunction}>
+      <span style="color: #0c2142; font-weight: bold; font-family: 'IBM Plex Mono', monospace;">
+        Time</span> Capsule
     </h1>
   </div>
   <div class="content">
@@ -25,45 +26,38 @@ import { runFunction  } from "./lib/lib_db";
   </div>
 
   <div class="footer">
-    <button
-      on:click={() => {
+
+    
+      <img on:click={() => {
         view = Views.RECORD;
-      }}
-    >
-      <img width="50" src="/{view === Views.RECORD ? 'mic_FILL' : 'mic'}.svg" />
-    </button>
-    <button
-      on:click={() => {
-        view = Views.GALLERY;
-      }}
-    >
+      }} src="/{view === Views.RECORD ? 'mic_FILL' : 'mic'}.svg" />
+
       <img
-        width="50"
+        on:click={() => {
+          view = Views.GALLERY;
+        }}
         src="/{view === Views.GALLERY ? 'folder_FILL' : 'folder'}.svg"
       />
-    </button>
   </div>
 </div>
 
 <style>
   .container {
-    background-color: var(--color1);
     margin: 0px !important;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    display:grid;
+    grid-template-rows: 4em 10fr 1.5fr;
   }
 
   h1 {
     font-size: 2em;
+    font-family: 'IBM Plex Mono', monospace;
+    color: white;
+    letter-spacing: 0.02em;
+    word-spacing: -0.65em;
   }
 
-  .content {
-    flex: 6;
-  }
   .header {
-    background-color: var(--color2);
     display: flex;
     justify-content: center;
     border-bottom: 2px solid black;
@@ -72,15 +66,14 @@ import { runFunction  } from "./lib/lib_db";
     align-items: center;
     flex: 1;
   }
+
   .footer {
-    background-color: var(--color2);
-    flex: 1;
-    padding: 0;
-    display: flex;
-    height: 100px;
-    width: auto;
-    justify-content: center;
+    border-top: 3px solid white;
+    display:flex;
+    grid-template-columns:2;
+    justify-content: space-around;
     align-items: center;
+
   }
 
 </style>

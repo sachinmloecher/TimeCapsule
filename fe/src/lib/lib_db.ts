@@ -1,12 +1,13 @@
 import { initializeApp } from "firebase/app";
+import { getStorage, ref , uploadBytes} from "firebase/storage";
 import {
-    getFirestore,
-    collection,
-    getDocs,
-    addDoc,
-    getDoc,
-    where,
-    query,
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  getDoc,
+  where,
+  query,
 } from "firebase/firestore";
 import * as _ from "firebase/firestore";
 import { doc, setDoc, Timestamp } from "firebase/firestore";
@@ -16,61 +17,81 @@ import { doc, setDoc, Timestamp } from "firebase/firestore";
 // import { } from 'firebase/<service>';
 
 // Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDM1qZNRK_0sg5qJSxE6t7QlDDYYply4J0",
+  authDomain: "sachacks4.firebaseapp.com",
+  projectId: "sachacks4",
+  storageBucket: "sachacks4.appspot.com",
+  messagingSenderId: "555120022585",
+  appId: "1:555120022585:web:a9d9ed271c2195145269e8",
+};
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage()
 
-export async function runFunction(){
-    transcribeAudioFile
+export async function runFunction() {
+  transcribeAudioFile(null);
 }
-export async function createMessage() {
-    // console.log('hi')
-    saveAudioFileToStorage()
-    transcribeAudioFile()
-    const docRef = await addDoc(collection(db, "messages"), {
-        name: "message name",
-        transcript: "this is a transcript of the message that was recorded",
-        creation_date: Timestamp.fromDate(new Date())
-    });
+export async function createMessage(blob: Blob, name: string) {
+  // console.log('hi')
+  await saveAudioFileToStorage(blob, name);
+  const transcript = await transcribeAudioFile(blob);
+  // const docRef = await addDoc(collection(db, "messages"), {
+  //     name,
+  //     transcript,
+  //     creation_date: Timestamp.fromDate(new Date())
+  // });
 }
 
 //saves blob to firebase storage and returns id/link to object
-async function saveAudioFileToStorage() {
-    
+async function saveAudioFileToStorage(blob: Blob, name:string) {
+    const blobRef = ref(storage, '/audio/' + name)
+    uploadBytes(blobRef, blob).then((snapshot) => {
+        console.log('Uploaded a blob or file!');
+      });
 }
-
-const sdk = require("microsoft-cognitiveservices-speech-sdk")
 
 //makes api call to transcribe audio and returns transcript string
-async function transcribeAudioFile() {
-    
-    const speechConfig = sdk.SpeechConfig.fromSubscription('1cf2d9e4892644eea672b9808a3f7439', 'eastus');
-        speechConfig.speechRecognitionLanguage = "en-US";
-    let audioConfig = sdk.AudioConfig.fromWavFileInput(fs.readFileSync("speechsample.wav"));
-    let speechRecognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
-
-    speechRecognizer.recognizeOnceAsync(result => {
-        switch (result.reason) {
-            case sdk.ResultReason.RecognizedSpeech:
-                console.log(`RECOGNIZED: Text=${result.text}`);
-                break;
-            case sdk.ResultReason.NoMatch:
-                console.log("NOMATCH: Speech could not be recognized.");
-                break;
-            case sdk.ResultReason.Canceled:
-                const cancellation = sdk.CancellationDetails.fromResult(result);
-                console.log(`CANCELED: Reason=${cancellation.reason}`);
-
-                if (cancellation.reason == sdk.CancellationReason.Error) {
-                    console.log(`CANCELED: ErrorCode=${cancellation.ErrorCode}`);
-                    console.log(`CANCELED: ErrorDetails=${cancellation.errorDetails}`);
-                    console.log("CANCELED: Did you set the speech resource key and region values?");
-                }
-                break;
-        }
-        speechRecognizer.close();
+async function transcribeAudioFile(blob: Blob) {
+  try {
+    const res = await fetch("https://api.assemblyai.com/v2/transcript", {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        authorization: "257838bed8f84c9fb3f41453fc1564f6",
+      },
+      method: "POST",
+      body: JSON.stringify({
+        audio_url:
+          "https://firebasestorage.googleapis.com/v0/b/sachacks4.appspot.com/o/Benedict_cumberbatch_in_front_row_b00wqfnd.flac?alt=media&token=7a82abd8-a6d1-4ff8-bb38-8bb36a20a831",
+      }),
+      mode: "cors",
     });
+
+    let json = await res.json();
+
+    let transcript_id = json["id"];
+
+    console.log("WIAINTINGGING ")
+    setTimeout(async function(){
+        console.log("requesting ")
+        let res2 = await fetch(
+            "https://api.assemblyai.com/v2/transcript/" + transcript_id,
+            {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                authorization: "257838bed8f84c9fb3f41453fc1564f6",
+              },
+            }
+          );
+          console.log(res2);
+          let res3 = await res2.json();
+          console.log(res3);
+    }, 15000);
+
+  } catch (err) {
+    console.error(err);
+  }
 }
-// get message
-// upload blob
-// get blob

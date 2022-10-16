@@ -14,6 +14,8 @@
 
             <Entry/>
 
+            <Entry/>
+
         </div>
     </div>
 
@@ -25,11 +27,11 @@
         padding: 0;
         margin: 0;
         display: flex;
-        background-color: blue;
         justify-content: center;
     }
 
     form {
+        margin-top: 2em;
         display: flex;
         justify-content: center;
     }
@@ -38,6 +40,9 @@
         margin: 10px 0 10px;
         padding: 10px;
         border-radius: 12px;
+        background-color: rgba(255, 255, 255, 0.146);
+        border-color: none;
+        box-shadow: none;
     }
 
     .gallery {
@@ -47,4 +52,5 @@
         display: flex;
         flex-direction: column;
     }
+
 </style>

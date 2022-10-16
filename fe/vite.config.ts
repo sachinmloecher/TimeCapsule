@@ -7,5 +7,8 @@ export default defineConfig({
   plugins: [svelte()],
   css:{
     postcss
+  },
+  server:{
+    cors: true
   }
 })

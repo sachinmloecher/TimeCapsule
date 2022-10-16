@@ -1,5 +1,5 @@
 # Time Capsule
-![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![alt text](https://github.com/sachinmloecher/Sachacks-Project/blob/main/color 1.jpg?raw=true)
 
 
 A serverless web application which allows you to capture audio in any moment, transcribe it to text, and find it later by searching for keywords. Record messages that you and your loved ones can reminisce on later.

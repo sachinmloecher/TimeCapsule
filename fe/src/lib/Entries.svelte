@@ -1,40 +1,51 @@
 <script>
   import Entry from "./Entry.svelte";
-  import { search } from "./lib_db";
+  import { getMessages, search } from "./lib_db";
   export let docs;
-  let entries = docs;
-	let searchValue = '';
+	$: entries = docs
+  let searchValue = "";
+  setInterval(() => {
+    getMessages().then((newMessages) => {
+      if (newMessages.length !== docs.lnegth) {
+        docs = newMessages;
+      }
+    });
+  }, 2000);
 </script>
 
 <div>
   <div class="search-container">
-    <input type="text" id="search-bar" bind:value={searchValue} on:input={() => {
-
-		if(searchValue === '') {
-			entries = docs
-		} else {
-        search(searchValue, docs).then((res) => {entries = res});
-		}
-		}
-		}/>
+    <input
+      type="text"
+      id="search-bar"
+      bind:value={searchValue}
+      on:input={() => {
+        if (searchValue === "") {
+          entries = docs;
+        } else {
+          search(searchValue, docs).then((res) => {
+            entries = res;
+          });
+        }
+      }}
+    />
   </div>
 
-	<div class='entries'>
-
-	{#if entries.length}
-		{#each entries as entry}
-			<Entry {entry} />
-		{/each}
-	{:else}
-		<div type='text'>nothing found</div>
-	{/if}
-	</div>
+  <div class="entries">
+    {#if entries.length}
+      {#each entries as entry}
+        <Entry {entry} />
+      {/each}
+    {:else}
+      <div type="text">nothing found</div>
+    {/if}
+  </div>
 </div>
 
 <style>
   .search-container {
     padding: 0.5em 0em;
-		display: flex;
+    display: flex;
     justify-content: center;
     align-items: center;
   }

@@ -3,7 +3,7 @@
   //   import ListCell from "./ListCell.svelte";
   import { getMessages, search } from "./lib_db";
 
-  const promiseData = getMessages();
+  let promiseData = getMessages();
 </script>
 
 <main>

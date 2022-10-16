@@ -14,34 +14,77 @@
 
   let hourglass_svg;
   let animationThing = null;
-  
+
+  const grammar = "#JSGF V1.0; grammar colors; public <color> = timecapsule;";
+  const speechreg = window.webkitSpeechRecognition;
+  const recognition = new speechreg();
+  // const grammerlist = ;
+  const speechRecognitionList = new window.webkitSpeechGrammarList();
+  speechRecognitionList.addFromString(grammar, 1);
+  recognition.grammars = speechRecognitionList;
+  recognition.continuous = true;
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+
+  recognition.onresult = (event) => {
+    const color = event.results[0][0].transcript.toLowerCase();
+    console.log(color);
+    if(!(color.includes('time') && color.includes('capsule')))
+    return;
+    recognition.stop();
+    {
+      const grammar =
+        "#JSGF V1.0; grammar colors; public <color> = stop recording;";
+      const speechreg = window.webkitSpeechRecognition;
+      const rec2 = new speechreg();
+      // const grammerlist = ;
+      const speechRecognitionList = new window.webkitSpeechGrammarList();
+      speechRecognitionList.addFromString(grammar, 1);
+      rec2.grammars = speechRecognitionList;
+      rec2.continuous = true;
+      rec2.lang = "en-US";
+      rec2.interimResults = false;
+      rec2.maxAlternatives = 1;
+
+      rec2.onresult = function (e) {
+        let ii = e.results[0][0].transcript.toLowerCase()
+        if(ii.includes('stop') && ii.includes('recording')){
+        toggleListen();
+        recognition.start()
+        rec2.end()
+        }
+      };
+      rec2.start();
+    }
+    toggleListen();
+  };
 
   function toggleListen() {
-
-
     if (!listening) {
-      console.log('is listening')
-      if(animationThing) {animationThing.play()}else{
+      console.log("is listening");
+      if (animationThing) {
+        animationThing.play();
+      } else {
         const aliceTumbling = [
-        { transform: "rotate(0)", color: "#000" },
-        { color: "#431236"},
-        {
-          transform: "rotate(360deg)",
-          color: "#000",
-          fill: 'both'
-        },
-      ];
-      animationThing = (hourglass_svg as HTMLElement).animate(aliceTumbling, {
-        duration: 3000,
-        iterations: Infinity,
-      });
+          { transform: "rotate(0)", color: "#000" },
+          { color: "#431236" },
+          {
+            transform: "rotate(360deg)",
+            color: "#000",
+            fill: "both",
+          },
+        ];
+        animationThing = (hourglass_svg as HTMLElement).animate(aliceTumbling, {
+          duration: 3000,
+          iterations: Infinity,
+        });
       }
-
     } else {
-      if(animationThing) animationThing.pause()
+      if (animationThing) animationThing.pause();
     }
-
-
 
     if (mediaRecorder === undefined) {
       console.error("media recorder undefined");
@@ -63,8 +106,7 @@
     }
 
     if (fileName.length === 0) {
-      console.error("empty file name");
-      return;
+			fileName = 'untitled'
     }
 
     createMessage(blob, fileName);
@@ -130,6 +172,7 @@
         />
       </svg>
     </div>
+
     <div class="recording">
       <div class="text-box">
         <p>Title of Recording</p>
@@ -137,7 +180,7 @@
           type="text"
           id="name"
           name="name"
-          maxlength="16"
+          maxlength="64"
           bind:value={fileName}
         />
       </div>
@@ -205,7 +248,7 @@
   }
   button:hover {
     transform: scale(1.12);
-    transition: transform 0.01s ease-out;
+    transition: transform 0.01s ease-in-out;
   }
   .hourglass-container {
     display: grid;

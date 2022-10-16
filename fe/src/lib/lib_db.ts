@@ -9,6 +9,7 @@ import {
   updateDoc,
   where,
   query,
+  orderBy,
 } from "firebase/firestore";
 
 import type {DocumentData} from "firebase/firestore";
@@ -84,8 +85,9 @@ export async function createMessage(blob: Blob, name: string) {
 
 // Fetch all documents in messages collection
 export async function getMessages(): Promise<DocumentData[]> {
-    const querySnapshot = await getDocs(collection(db, "messages"));
+    const querySnapshot = await getDocs(query(collection(db, "messages"), orderBy('creation_date')));
     let docs = querySnapshot.docs.map(e=>e.data());
+    docs.reverse()  
     return docs;
 }
 
@@ -142,7 +144,6 @@ async function transcribeAudioFile(url: string):Promise<string> {
         }
       );
       let res3 = await res2.json();
-      console.log(res3);
       if(res3.status == 'completed') {
         done_transcribing = true;
         return res3.text; //this is the transcripted text.

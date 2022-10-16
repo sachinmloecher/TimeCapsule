@@ -1,4 +1,7 @@
 # Time Capsule
+![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+
+
 A serverless web application which allows you to capture audio in any moment, transcribe it to text, and find it later by searching for keywords. Record messages that you and your loved ones can reminisce on later.
 
 Time Capsule records local audio, uploads it to Firestore, and then generates a transcript of the file using AssemblyAI speech recognition. Files can then be searched for using keywords. All using a serverless architecture.

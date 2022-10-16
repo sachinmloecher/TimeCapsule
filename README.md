@@ -6,11 +6,13 @@ A serverless web application which allows you to capture audio in any moment, tr
 
 Time Capsule records local audio, uploads it to Firestore, and then generates a transcript of the file using AssemblyAI speech recognition. Files can then be searched for using keywords. All using a serverless architecture.
 
-#### App overview
-##### Record page
+## App overview
+### Record page
 The record page lets you record your audio using the device microphone, name it, and transcribe it using AssemblyAI speech recognition.
-##### Explore/Search Page
+### Explore/Search Page
 The Explore Page displays all of the user's audio transcripts currently present. It has a scrollable library of the transcripts, recordings, titles, and dates, and a search bar to filter files based on entered keywords.
+
+***
 
 #### Inspiration
 For many, mourning the loss of a loved one comes with the immense desire to preserve memories and mementos. Many will look to old letters, printed emails, and particularly to videos and recordings, which by their nature feel so alive and close to heart.
